@@ -1,0 +1,13 @@
+taxi_data.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+venv/
+env/
+.venv/
+requirements.txt
