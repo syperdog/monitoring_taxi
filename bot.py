@@ -4,13 +4,15 @@ import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler, ConversationHandler
 from datetime import datetime
+import pytz
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-ADMIN_ID = 1012195906
+ADMIN_ID = 969266400
 DATA_FILE = 'taxi_data.json'
 ADD_CAR, TAKE_CAR, UPLOAD_MEDIA = range(3)
 admin_ids = [ADMIN_ID]
+TZ = pytz.timezone('Europe/Moscow')
 
 def load_data():
     global admin_ids
@@ -123,14 +125,14 @@ async def done_upload(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.effective_user.username or update.effective_user.first_name
     
     cars[car_id]['driver'] = username
-    cars[car_id]['shift_start'] = datetime.now()
+    cars[car_id]['shift_start'] = datetime.now(TZ)
     
     shift = {
         'driver_id': user_id,
         'driver_name': username,
         'car_id': car_id,
         'car_info': cars[car_id]['info'],
-        'start_time': datetime.now(),
+        'start_time': datetime.now(TZ),
         'media': context.user_data['media']
     }
     shifts.append(shift)
@@ -185,7 +187,7 @@ async def active_shifts(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     msg = '🚗 Активные смены:\n'
     for cid, car in active.items():
-        duration = datetime.now() - car['shift_start']
+        duration = datetime.now(TZ) - car['shift_start']
         hours = int(duration.total_seconds() // 3600)
         msg += f"#{cid} {car['info']}\nВодитель: @{car['driver']}\nВремя: {hours}ч\n\n"
     await update.message.reply_text(msg)
